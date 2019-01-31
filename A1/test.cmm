@@ -1,5 +1,13 @@
 /*This is a sample program in C- */
 void main(void){
+     int x = 123;
      output(x);
+     /* This
+     is
+     a
+     /* comment
+     */ /* over
+     several lines */
+     */ /* This should be an error, for an unmatched comment close */
 } ~
 /* unfinished comment

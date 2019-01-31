@@ -64,7 +64,16 @@ OTHER		.
 			    
 <COMMENT>{OTHER}	    {/* Consume comment contents */}
 %%
-void main(){
+void main(int argc, char** argv){
+     char* src = "<stdin>";
+     if(argc == 2){
+         src = argv[1];
+	 yyin = fopen(src, "r");
+     } else if(argc == 1){
+         yyin = stdin;
+     } else {
+         fprintf(stderr, "This parser works on a file or stdin.\n");
+     }
      TokenType currentToken;
      do{
           currentToken = yylex();
