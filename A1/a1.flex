@@ -21,7 +21,7 @@
 		/* Bookkeeping */
 		SYM_ERROR, EOF_ERROR, UNMATCHED_ERROR, END, UNK
 	} TokenType;
-	void printToken(TokenType t, int c);
+	void printToken(TokenType, int, FILE*);
 %}
 
 DIGIT		[0-9]
@@ -66,43 +66,70 @@ OTHER		.
 %%
 void main(int argc, char** argv){
      char* src = "<stdin>";
-     if(argc == 2){
-         src = argv[1];
-	 yyin = fopen(src, "r");
-     } else if(argc == 1){
+     char* out = "parser.res";
+     char usedv = 0;
+     char usedo = 0;
+     char usedf = 0;
+     char error = 0;
+     int used = 1;
+     while(used < argc && !error){
+         if(!strcmp(argv[used], "-v")){
+	     if(usedv++) error++;
+	     used++;
+	 } else if(!strcmp(argv[used], "-o")){
+	     if(usedo++) error++;
+	     if(++used < argc){
+	         out = argv[used++];
+	     } else {
+	         error++;
+             }
+	 } else {
+	     if(usedf++) error++;
+	     src = argv[used++];
+	 }
+     }
+     if(error){
+         fprintf(stderr,"Format:\n\t%s [-v] [-o outputfile] [inputfile]\n",argv[0]);
+	 exit(1);
+     }
+     if(!strcmp(src, "<stdin>")){
          yyin = stdin;
      } else {
-         fprintf(stderr, "This parser works on a file or stdin.\n");
+         yyin = fopen(src, "r");
      }
-     printf("C- COMPILATION: %s\n", src);
+     FILE* of = fopen(out, "w");
+     if(usedv) printf("C- COMPILATION: %s\n", src);
+     fprintf(of, "C- COMPILATION: %s\n", src);
      TokenType currentToken;
      do{
           currentToken = yylex();
-     	  printToken(currentToken, tokenCat);
+     	  printToken(currentToken, tokenCat, of);
+	  if(usedv) printToken(currentToken, tokenCat, stdout);
      } while (tokenCat != CAT_END);
+     fclose(of);
 }
-void printToken(TokenType currentToken, int tokenCat){
-     printf("%d: ", lineNo);
+void printToken(TokenType currentToken, int tokenCat, FILE* of){
+     fprintf(of,"%d: ", lineNo);
      switch(tokenCat){
 	case CAT_RWORD:
-	     printf("reserved word: %s\n", yytext);
+	     fprintf(of,"reserved word: %s\n", yytext);
 	     break;
 	case CAT_ID:
-	     printf("ID, name= %s\n", yytext);
+	     fprintf(of,"ID, name= %s\n", yytext);
 	     break;
 	case CAT_SPECIAL:
-	     printf("special symbol: %s\n", yytext);
+	     fprintf(of,"special symbol: %s\n", yytext);
 	     break;
 	case CAT_NUM:
-	     printf("number, value= %s\n", yytext);
+	     fprintf(of,"number, value= %s\n", yytext);
 	     break;
 	case CAT_ERROR:
 	     if(currentToken == SYM_ERROR){
-	         printf("ERROR: %s (%d)\n", yytext, (int)(*yytext));
+	         fprintf(of,"ERROR: %s (%d)\n", yytext, (int)(*yytext));
 	     } else if(currentToken == UNMATCHED_ERROR){
-	         printf("ERROR: Unmatched */\n");
+	         fprintf(of,"ERROR: Unmatched close comment.\n");
              } else {
-	         printf("ERROR: Unknown error.\n");
+	         fprintf(of,"ERROR: Unknown error.\n");
 		 // Should not get here.
              }
 	     break;
@@ -110,9 +137,9 @@ void printToken(TokenType currentToken, int tokenCat){
 	     if(currentToken == END){
 	         /* Valid end state, print nothing. */
 	     } else if (currentToken == EOF_ERROR){
-	         printf("ERROR: EOF in comment\n");
+	         fprintf(of,"ERROR: EOF in comment\n");
 	     } else {
-	         printf("ERROR: Unknown end state.\n");
+	         fprintf(of,"ERROR: Unknown end state.\n");
 		 // Should not get here.
 	     }
 	     break;
