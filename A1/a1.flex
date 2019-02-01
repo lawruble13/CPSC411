@@ -74,6 +74,7 @@ void main(int argc, char** argv){
      } else {
          fprintf(stderr, "This parser works on a file or stdin.\n");
      }
+     printf("C- COMPILATION: %s\n", src);
      TokenType currentToken;
      do{
           currentToken = yylex();
