@@ -90,7 +90,10 @@ void main(int argc, char** argv){
 	     if(usedo++) error++;
 	     if(usedv++) error++;
 	     used++;
-	     out="";
+             out="";
+	 } else if(!strcmp(argv[used], "-h")){
+	     printf("Format: %s [-v] [-o outputfile] [-n] [inputfile]\n",argv[0]);
+	     exit(0);
 	 } else {
 	     if(usedf++) error++;
 	     src = argv[used++];

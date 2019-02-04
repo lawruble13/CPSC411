@@ -9,7 +9,7 @@ echo """lexer:
 	gcc -o scanner lex.yy.c -lfl
 
 test: lexer""" > Makefile
-if [ ! -z `command -v dne` ]; then
+if [ ! -z `command -v perl` ]; then
     if [ -f ./__nums__ ]; then
 	echo "Warning: Removing __nums__"
     fi
