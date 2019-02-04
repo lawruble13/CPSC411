@@ -15,7 +15,7 @@
 		/* Other tokes */
 		ID, NUM,
 		/* Bookkeeping */
-		SYM_ERROR, EOF_ERROR, UNMATCHED_ERROR, END, UNK
+		ERROR, END
 	} TokenType;
 
 	typedef enum{
@@ -86,19 +86,19 @@ while	{Token_init(&currentToken, WHILE, CAT_RWORD, NULL); return 0;}
 
 <INITIAL>{OCOM}	{BEGIN(COMMENT);}
 
-<INITIAL>{CCOM}	{Token_init(&currentToken, UNMATCHED_ERROR, CAT_ERR, NULL); return 0;}
+<INITIAL>{CCOM}	{Token_init(&currentToken, ERROR, CAT_ERR, yytext); return 0;}
 
 <INITIAL>{NUM}	{Token_init(&currentToken, NUM, CAT_NUM, yytext); return 0;}
 
 <INITIAL,COMMENT>{NEWLINE} {lineNo++;}
 
-<INITIAL>{OTHER}	   {Token_init(&currentToken, SYM_ERROR, CAT_ERR, yytext); return 0;}
+<INITIAL>{OTHER}	   {Token_init(&currentToken, ERROR, CAT_ERR, yytext); return 0;}
 
 <INITIAL><<EOF>>	   {Token_init(&currentToken, END, CAT_END, NULL); return 0;}
 
 <COMMENT>{CCOM}		   {BEGIN(INITIAL);}
 
-<COMMENT><<EOF>>	   {Token_init(&currentToken, EOF_ERROR, CAT_END, NULL); return 0;}
+<COMMENT><<EOF>>	   {Token_init(&currentToken, ERROR, CAT_END, yytext); return 0;}
 			    
 <COMMENT>{OTHER}	    {/* Consume comment contents */}
 %%
@@ -196,19 +196,16 @@ void printToken(Token t, FILE* of){
 	     break;
 	case CAT_ERR:
 	     fprintf(of,"%d: ", lineNo);
-	     if(currentToken.type == SYM_ERROR){
-	         fprintf(of,"ERROR: %s\n", (char*)currentToken.data);
-	     } else if(currentToken.type == UNMATCHED_ERROR){
-	         fprintf(of,"ERROR: */\n");
-             } else {
-	         fprintf(of,"ERROR: Unknown error.\n");
-		 // Should not get here.
-             }
+	     if(!strcmp("*/", (char*)currentToken.data)){
+	         fprintf(of,"ERROR: Unmatched */\n");
+	     } else {
+	         fprintf(of,"ERROR: %s\n",(char*)currentToken.data);
+	     }
 	     break;
 	case CAT_END:
 	     if(currentToken.type == END){
 	         /* Valid end state, print nothing. */
-	     } else if (currentToken.type == EOF_ERROR){
+	     } else if (currentToken.type == ERROR){
 	         fprintf(of,"%d: ", lineNo);
     		 fprintf(of,"ERROR: EOF in comment\n");
 	     } else {
