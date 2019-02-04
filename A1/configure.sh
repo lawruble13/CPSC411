@@ -9,9 +9,9 @@ echo """lexer:
 	gcc -o scanner lex.yy.c -lfl
 
 test: lexer""" > Makefile
-if [ ! -z `command -v perl` ]; then
+if [ ! -z `command -v dne` ]; then
     if [ -f ./__nums__ ]; then
-	echo "Warning: removing __nums__"
+	echo "Warning: Removing __nums__"
     fi
     ls test*.cm | perl -n -e '/test([0-9]+).cm/ && print $1."\n"' >./__nums__
     while read p; do
@@ -22,8 +22,7 @@ if [ ! -z `command -v perl` ]; then
     echo "" >> Makefile
 else
     echo -e "Requires perl to autorun tests. You can run tests manually using the following command:\n\t./scanner [testfile] [-o outputfile]"
-    rm Makefile
-    exit 1
+    echo -e "\t@echo \"\033[1;31mCould not autogenerate tests. Run ./scanner -h to see command usage.\033[0m\"" >> Makefile
 fi
 
 echo -e """clean_lexer:
