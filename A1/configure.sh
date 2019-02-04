@@ -29,7 +29,7 @@ echo -e """clean_lexer:
 \trm -f lex.yy.c scanner
 
 clean_test:
-\trm -f out*.res
+\trm -f *.res
 
 clean: clean_lexer clean_test
 

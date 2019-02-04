@@ -10,4 +10,4 @@ void main(void){
      several lines */
      */ /* This should be an error, for an unmatched comment close */
 } ~
-/* unfinished comment
+/* unfinished comment */
