@@ -1,0 +1,37 @@
+.TH SCANNER 1 "February 2019" Linux "User Manuals"
+.SH NAME
+scanner \- Scan a file in the C- language
+.SH SYNOPSIS
+.B scanner [-v] [-n] [-h] [-o
+.I output-file
+.B ] [
+.I input-file
+.B ]
+.SH DESCRIPTION
+.B scanner
+Scans the given input according to the lexical conventions of C- defined in the CPSC 411 Assignment 1 Document. By default (i.e. with no arguments), it accepts input from 
+.B stdin
+and outputs to the file
+.I scanner.res
+
+.SH OPTIONS
+.IP -v
+Copy output to
+.B stdout.
+This option is mutually exclusive with -n.
+.IP -n
+Do not print to a file, print to
+.B stdout 
+instead. This option is mutually exclusive with -v and -o.
+.IP "-o output-file"
+Write the output to
+.I output-file
+instead of writing to
+.I scanner.res.
+This option is mutually exclusive with -n
+.IP -h
+Print the usage format of the program.
+.SH AUTHOR
+Liam Wrubleski <liam at wrubleski dot net>
+
+Victor Zheng
