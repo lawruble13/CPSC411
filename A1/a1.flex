@@ -7,7 +7,10 @@
 	#define CAT_NUM 3
 	#define CAT_ERROR 4
 	#define CAT_END 5
-
+	#ifndef DEFAULT_OUTPUT
+	#define DEFAULT_OUTPUT "scanner.res"
+	#endif
+	
 	int tokenCat;
 	int lineNo = 1;
 
@@ -83,21 +86,36 @@ void main(int argc, char** argv){
 	     } else {
 	         error++;
              }
+	 } else if(!strcmp(argv[used], "-n")){
+	     if(usedo++) error++;
+	     if(usedv++) error++;
+	     used++;
+	     out="";
 	 } else {
 	     if(usedf++) error++;
 	     src = argv[used++];
 	 }
      }
      if(error){
-         fprintf(stderr,"Format:\n\t%s [-v] [-o outputfile] [inputfile]\n",argv[0]);
+         fprintf(stderr,"Format:\n\t%s [-v] [-o outputfile] [-n] [inputfile]\n",argv[0]);
 	 exit(1);
      }
      if(!strcmp(src, "<stdin>")){
-         yyin = stdin;
+         if(usedf){
+	     fprintf(stderr, "Format:\n\t%s [-v] [-o outputfile] [-n] [inputfile]\n",argv[0]);
+	     exit(1);
+	 } else {
+             yyin = stdin;
+	 }
      } else {
          yyin = fopen(src, "r");
      }
-     FILE* of = fopen(out, "w");
+     FILE* of;
+     if(strlen(out) > 0){
+         of = fopen(out, "w");
+     } else {
+         of = stdout;
+     }
      if(usedv) printf("C- COMPILATION: %s\n", src);
      fprintf(of, "C- COMPILATION: %s\n", src);
      TokenType currentToken;
@@ -125,9 +143,9 @@ void printToken(TokenType currentToken, int tokenCat, FILE* of){
 	     break;
 	case CAT_ERROR:
 	     if(currentToken == SYM_ERROR){
-	         fprintf(of,"ERROR: %s (%d)\n", yytext, (int)(*yytext));
+	         fprintf(of,"ERROR: %s\n", yytext);
 	     } else if(currentToken == UNMATCHED_ERROR){
-	         fprintf(of,"ERROR: Unmatched close comment.\n");
+	         fprintf(of,"ERROR: */\n");
              } else {
 	         fprintf(of,"ERROR: Unknown error.\n");
 		 // Should not get here.
