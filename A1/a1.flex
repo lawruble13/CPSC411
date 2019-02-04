@@ -105,6 +105,8 @@ while	{Token_init(&currentToken, WHILE, CAT_RWORD, NULL); return 0;}
 void main(int argc, char** argv){
      char* src = "<stdin>";
      char* out = DEFAULT_OUTPUT;
+
+/* START PARSING FLAGS */
      char usedv = 0;
      char usedo = 0;
      char usedf = 0;
@@ -138,6 +140,8 @@ void main(int argc, char** argv){
          fprintf(stderr,"Format:\t%s [-v] [-o outputfile] [-n] [inputfile]\n",argv[0]);
 	 exit(1);
      }
+/* DONE PARSING FLAGS */
+/* START OPENING FILES */
      if(!strcmp(src, "<stdin>")){
          if(usedf){
 	     fprintf(stderr, "Format:\t%s [-v] [-o outputfile] [-n] [inputfile]\n",argv[0]);
@@ -160,6 +164,8 @@ void main(int argc, char** argv){
 	 fclose(of);
 	 exit(1);
      }
+/* DONE OPENING FILES */
+/* START LEXING */
      if(usedv) printf("C- COMPILATION: %s\n", src);
      fprintf(of, "C- COMPILATION: %s\n", src);
      do{
@@ -167,6 +173,7 @@ void main(int argc, char** argv){
      	  printToken(currentToken, of);
 	  if(usedv) printToken(currentToken, stdout);
      } while (currentToken.cat != CAT_END);
+/* DONE LEXING */
      fclose(of);
 }
 void printToken(Token t, FILE* of){
@@ -185,7 +192,7 @@ void printToken(Token t, FILE* of){
 	     break;
 	case CAT_NUM:
 	     fprintf(of,"%d: ", lineNo);
-	     fprintf(of,"number, value= %d\n", *(long*)(t.data));
+	     fprintf(of,"number, value= %s\n", (char*)t.data);
 	     break;
 	case CAT_ERR:
 	     fprintf(of,"%d: ", lineNo);
@@ -222,17 +229,18 @@ void Token_init(Token* t, TokenType type, TokenCat cat, const void* data){
     t->cat = cat;
     char* end;
     if(data != NULL){
-        long l = strtol((const char*)data, &end, 10);
-	if(l == 0 && end-(const char*)data != strlen((const char*)data)){
+//        long l = strtol((const char*)data, &end, 10);
+//	if(l == 0 && end-(const char*)data != strlen((const char*)data)){
 	    t->data = malloc(strlen((const char*)data)+1);
 	    strcpy((char*)t->data, (const char*)data);
-	} else {
-	    t->data = malloc(sizeof(long));
-	    *(long*)t->data = l;
-	}
+//	} else {
+//	    t->data = malloc(sizeof(long));
+//	    *(long*)t->data = l;
+//	}
     } else {
         t->data = NULL;
     }
+// The sections commented in this function are part of the evaluator, not technically part of the lexer.
     t->alloc=0;
 }
 void Token_dest(Token* t){
